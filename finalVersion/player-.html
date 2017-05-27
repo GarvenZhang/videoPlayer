@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<!-- 兼容所有浏览器（包括ie整套）开始 -->
+<div class="wrap ">
+    <div class="box play">
+        <div class="player">
+            <div id="content_jr" class="player_l" align="center">
+                <!-- 控件表，通过参数控制播放器的样式 -->
+                <script src="ckplayer/player.js"  language="javascript"></script>
+                <!-- 控制开/关灯 -->
+                ﻿<script type="text/javascript" src="ckplayer/offlights.js" ></script>
+                <!-- 最主要的播放器插件 -->
+                <script type="text/javascript" src="ckplayer/ckplayer.js" ></script>
+                <!-- 弹幕 -->
+                <script type="text/javascript">
+                    var bgPath='barrage/2014/json';//弹幕文件（路径），请自行根据你的程序进行定义，注意文件夹的第一级目录要存在，权限要可写，不加后缀，要修改后缀请到barrage.php里修改
+                    var isLive=false;//是否是直播，true=是,false=普通
+                </script>
+                <script src="ckplayer/barrage.js"></script>
+                <!-- js中写出播放器的html结构 -->
+                <script type="text/javascript">
+                    var videobox = '<div style="width:'+ckdata['dwidth']+'px; height:'+ckdata['dheight']+'px;margin:5px auto;clear:both;">';
+                    videobox += '<div id="a1" style="position:absolute;z-index:100;"></div>';
+                    videobox += '</div>';
+                </script>
+                <!-- 把js中写好的播放器结构放进html中 -->
+                <script type="text/javascript">document.write(videobox)</script>
+                <!-- 做兼容处理，传入视频实参以及开/关灯实参 -->
+                <script type="text/javascript">
+                    function Extension(str){//判断开始
+                        var ext='';
+                        if(str){
+                            var file=str.toLowerCase();
+                            var filearr=file.split('.');
+                            var exten=filearr[filearr.length-1];
+                            if(exten=='flv' || exten=='f4v' || exten=='mp4' || exten=='rmov'){
+                                ext='video';//普通视频
+                            }
+                            else if(exten=='m3u8'){
+                                ext='m3u8';//m3u8
+                            }
+                        }
+                        return ext;
+                    }
+                    var _f='';//定义调用视频的f值
+                    var _a='';//同上，定义a值
+                    var _s=0;//同上，定义s值
+                    var _flv='video/letitgo.flv';
+                    if(Extension(_flv)=="video"){//如果是普通视频
+                        _f=_flv;
+                        _s=0;
+                    }
+                    else if(Extension(_flv)=="m3u8"){//如果是m3u8
+                        _f='ckplayer/m3u8.swf';
+                        _a=_flv;
+                        _s=4;
+                    }
+                    else{//如果都不是的话就使用另一种调用方式
+                        _f='';// ckplayer/video.php?url=[$pat]
+                        _a='video/letitgo.flv';
+                        _s=2;
+                    }//判断结束，下面是调用视频，全部由上面的变量传值
+                    var newcpt_share='';// ckplayer/ckplayer_share.php
+                    var newcontrol_rel=''; //related.swf,ckplayer/ckplayer_related.php,1
+                    var flashvars={
+                        f:_f,
+                        a:_a,
+                        s:_s,
+                        c:'0',
+                        b:0,
+                        loaded:'loadedHandler',
+                        x:'',
+                        l:ckdata['adpre'],
+                        r:ckdata['adpreurl'],
+                        t:ckdata['adpretime'],
+                        d:ckdata['adpau'],
+                        u:ckdata['adpauurl'],
+                        e:ckdata['endmotion'],
+                        p:ckdata['autoplay'],
+                        v:ckdata['volume'],
+                        k:'',
+                        i:'images/videoPost.png',   //播放前的封面
+                        n:'',
+                        lv:'0',
+                        my_title:'',
+                        my_pic:'',
+                        my_url:encodeURIComponent(window.location.href)
+                    };
+
+                    var params={bgcolor:'#FFF',allowFullScreen:true,allowScriptAccess:'always'};
+                    var video=['->video/mp4','->video/webm','->video/ogg'];
+                    var support=['iPad','iPhone','ios','android+false','msie10+false'];//默认的在ipad,iphone,ios设备中用html5播放,android,ie10上没有安装flash的也调用html5
+                    CKobject.embedHTML5('a1','ckplayer_a1',ckdata['dwidth'],ckdata['dheight'],video,flashvars,support);
+                    CKobject.embed('ckplayer/ckplayer.swf','a1','ckplayer_a1',ckdata['dwidth'],ckdata['dheight'],false,flashvars,video,params);
+
+                    function getstart(){
+                        var a=CKobject.getObjectById('ckplayer_a1').getStatus();
+                        var ss='';
+                        for (var k in a){
+                            ss+=k+":"+a[k]+'\n';
+                        }
+                        alert(ss);
+                    }
+                    function ckadjump(){
+                        alert('会员等级不够，请登录或提升会员等级后使用跳过广告按钮！');
+                    }
+                    //开关灯
+                    var box = new LightBox();
+                    function closelights(){//关灯
+                        box.Show();
+                        CKobject._K_('a1').style.width=ckdata['cwidth']+'px';
+                        CKobject._K_('a1').style.height=ckdata['cheight']+'px';
+                        CKobject.getObjectById('ckplayer_a1').width=ckdata['cwidth'];
+                        CKobject.getObjectById('ckplayer_a1').height=ckdata['cheight'];
+                    }
+                    function openlights(){//开灯
+                        box.Close();
+                        CKobject._K_('a1').style.width=ckdata['dwidth']+'px';
+                        CKobject._K_('a1').style.height=ckdata['dheight']+'px';
+                        CKobject.getObjectById('ckplayer_a1').width=ckdata['dwidth'];
+                        CKobject.getObjectById('ckplayer_a1').height=ckdata['dheight'];
+                    }
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 兼容所有浏览器（包括ie整套）结束 -->
+</body>
+</html>
